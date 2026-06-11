@@ -19,8 +19,9 @@ skeleton; a test-traceability tool *fills in* status. Structure vs. status.
 
 ## 1. Component layering
 
-Decompose the system into a layered stack with a **strict one-way dependency** —
-each layer may depend only on layers below it, never upward:
+Decompose the system into a layered stack **L0..Ln** with a **strict one-way
+dependency** — each layer may depend only on layers below it, never upward. Three
+layers is the common default:
 
 - **L0 — Foundation / platform.** Shared infrastructure the project *configures
   and uses* but does not implement or test as a project function. Library/SDK code
@@ -30,7 +31,21 @@ each layer may depend only on layers below it, never upward:
 - **L2 — Application logic.** The project's own decision functions. Consume L1
   output, decide what to do, drive interfaces. No wire-format parsing.
 
-(Use more layers only if a system genuinely has them; three is the common case.)
+### Scale the layer count to the system
+
+Three layers fit most projects, but the model is **open-ended (L0..Ln)** — add
+layers when the system genuinely has more distinct tiers of responsibility, each
+with a clean one-way dependency on the one below. Examples: a large back-end may
+split L2 application logic into **domain logic** and an **orchestration/workflow**
+layer above it; a platform with reusable services may insert a **shared-services**
+layer between interfaces and application logic. Don't add layers for their own
+sake — only when a real dependency boundary exists.
+
+Whatever the count, the invariants hold for every layer: strict downward-only
+dependency; the ownership distinction (foundation = not-owned shared infra, the
+layers above = code we own); each layer becomes its **own Part** in the FSD body
+(in dependency order, application-most on top → foundation at the bottom); and the
+tier mapping below applies per layer.
 
 ### The L0-vs-L1 rule: ownership, not "is it shared"
 
@@ -55,6 +70,33 @@ Foundation = shared infra we don't implement/test as a project function.
 | Mobile / desktop | OS & UI SDK, storage, push/notification frameworks | data/network/device adapters | view-models, business logic |
 
 Keep the ownership rule across all profiles.
+
+### Source layout mirrors the layers
+
+The §2.4 layering is not just a diagram — the **implementation's source layout
+should mirror it**, so code, FSD, test specs, and the coverage matrix share one
+spine. The FSD states this as guidance for whoever implements it (the FSD advises
+how to code, not just what to build). The rule is platform-independent; only the
+word "module" varies (a source file, a package, a class, a service):
+
+- **One module per component.** Each L1 interface and each L2 feature is its own
+  module, named for the component. **Don't fold an interface into the consumer
+  that uses it** — an interface used by exactly one feature still gets its own
+  module, so it can be tested, replaced, or reused independently. (A relay driver
+  buried inside the control loop that drives it is the smell to avoid.)
+- **Keep the dependency arrow one-way.** A lower layer must never depend on a
+  higher one. When a foundation/interface module must hand work *upward* (e.g. an
+  event loop that has to notify application logic), **invert the dependency**: the
+  lower module exposes a registration/callback hook, and the **composition root**
+  (the top-level wiring — `main`, the app entry point, or a DI container) connects
+  it to the higher-layer handler. The lower module stays ignorant of its consumers.
+- **Extract the pure core as a free function** (see §3 Test tiers): split each
+  interface's decision / parse / encode logic from its I/O so the core is testable
+  at the fast tier.
+
+These three together are what let a reader open one module and find one component,
+and what keep the layer diagram honest in the code. State them in the FSD's §2.4
+so every implementation inherits the structure.
 
 ---
 

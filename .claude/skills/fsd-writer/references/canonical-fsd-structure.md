@@ -55,6 +55,12 @@ High-complexity production FSD before being adopted as the standard.
   per layer). See `references/test-architecture.md` for profiles (embedded /
   cloud / mobile), the diagram convention, the Mermaid layout gotcha, and the
   ASCII fallback.
+- State the **source-layout convention** so the implementation mirrors these
+  layers: each component maps to its **own module** (an interface is never folded
+  into the consumer that uses it); lower layers never depend on higher ones (invert
+  via a callback/registration hook wired at the composition root); each interface's
+  pure core is extracted as a free function for the fast tier. The FSD advises how
+  to code, not just what to build — see `references/test-architecture.md`.
 
 ## 3. Implementation Phases
 ### 3.1 Phase 1 — Infrastructure Foundation
@@ -223,6 +229,16 @@ Not every Part or chapter applies to every project.
   Handling almost always; Build/Tooling, Identity, Config Catalog as relevant).
 - **Omit empty chapters** rather than writing "N/A" — note the omission reason in a
   comment if it might confuse readers.
+
+**One body Part per layer — scale the layer count to the system.** Parts A–C above
+show the common three-layer case (L2 / L1 / L0), but the model is open-ended: a
+system with more genuine layers gets **more body Parts, one per layer**, in
+dependency order (application-most first → foundation last), still followed by the
+cross-cutting Part and Part E. E.g. a system that splits application logic into
+orchestration over domain logic, or inserts a shared-services layer, would carry
+an extra Part for it. Add layers only where a real one-way dependency boundary
+exists — see `references/test-architecture.md` ("Scale the layer count to the
+system").
 
 **Scale the Parts to complexity** (see `references/complexity-scaling.md`):
 

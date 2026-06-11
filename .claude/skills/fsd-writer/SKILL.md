@@ -336,13 +336,22 @@ falls out of (§x.0 Test Architecture, in the V&V chapter under Part E):
   **L0 Foundation/platform → L1 Interfaces → L2 Application logic**. The L0-vs-L1
   line is **ownership** ("did we implement and test the protocol?"): a
   library/managed client to an external service is foundation; a hand-written
-  decoder/driver/handler is an interface.
+  decoder/driver/handler is an interface. Three layers is the common default, but
+  the model is **open-ended (L0..Ln)** — add layers when a complex system genuinely
+  has more distinct, one-way-dependent tiers (e.g. orchestration over domain logic,
+  or a shared-services layer). Each layer becomes its own body Part.
 - Draw a layered component diagram in §2.4 (stacked layer boxes, components on one
   row per layer).
 - **The FSD body mirrors these layers**: each component becomes a self-contained
   chapter, grouped under layer **Part** dividers (L2 → L1 → L0 → cross-cutting →
   operations & verification). The §2.4 layering is the spine; the body Parts are
   its projection. See `references/canonical-fsd-structure.md` (the Parts scheme).
+- **Advise the source layout in §2.4** so the *code* mirrors the layers too: one
+  module per component (never fold an interface into its consumer), lower layers
+  never depend on higher ones (invert via the composition root), pure cores
+  extracted for the fast tier. The FSD advises how to code, not just what to
+  build — see `references/test-architecture.md` ("Source layout mirrors the
+  layers").
 - In §x.0 Test Architecture, define the test tiers (cost-ordered execution
   environments, named per platform), map them to the layers, and reference a
   **generated** component × tier coverage matrix. This skill declares the
@@ -448,6 +457,9 @@ After generating or updating an FSD, the skill must verify:
 
 - [ ] The body is grouped by layer Parts (or chapters in layer order for Low
       complexity), mirroring §2.4; chapters are self-contained.
+- [ ] §2.4 states the source-layout convention (one module per component; lower
+      layers don't depend on higher ones; pure cores extracted) so the code can
+      mirror the layers.
 - [ ] Every **Must** and **Should** FR/NFR is stated with a stable ID in its
       component chapter and referenced by >= 1 test in the specs.
 - [ ] V&V traceability is a **pointer to the generated matrix/gap report** — no

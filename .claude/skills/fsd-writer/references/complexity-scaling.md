@@ -37,7 +37,13 @@ Infer complexity from:
 | Appendix | Constants only | Constants + examples | Constants + schemas + diagrams + logs |
 
 Regardless of tier: requirements live in their component chapter (no global FR
-section), the body follows **layer order** (L2 → L1 → L0 → cross-cutting →
-operations & verification), and V&V traceability is a **pointer to the generated
-matrix**, never a hand-filled status table. See
+section), the body follows **layer order** (application → … → foundation →
+cross-cutting → operations & verification), and V&V traceability is a **pointer to
+the generated matrix**, never a hand-filled status table. See
 `references/canonical-fsd-structure.md`.
+
+The **layer count itself scales with complexity**: three layers (L0/L1/L2) is the
+common default, but a High-complexity system may warrant more (L0..Ln) — e.g. an
+orchestration layer over domain logic, or a shared-services layer. Each layer is
+one body Part; add layers only where a real one-way dependency boundary exists
+(see `references/test-architecture.md`, "Scale the layer count to the system").
