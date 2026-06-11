@@ -30,6 +30,12 @@ an external service = foundation; hand-written decoder/driver/handler = interfac
 - **L2 — Application logic**: control loops, state machines, scheduling/decision
   logic. Pure functions on the host tier.
 
+These three are the common default. A project may **add layers** if it genuinely
+has more one-way-dependent tiers (e.g. a device-orchestration layer above several
+control loops) — see `../test-architecture.md` ("Scale the layer count to the
+system"). Each layer becomes its own body Part, and the source layout mirrors it
+(one module per component; see "Source layout mirrors the layers").
+
 ## Test tiers (for the §x.0 Test Architecture, in the V&V chapter)
 
 | Tier | Runs on | Speed | Catches |
